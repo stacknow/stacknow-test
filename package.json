@@ -1,14 +1,15 @@
 {
   "name": "stacknow-test",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "A simple Node.js server for testing Stacknow deployments.",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^4.18.2"
   }
 }
