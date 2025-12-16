@@ -18,6 +18,10 @@ COPY . .
 # Start from a clean, lightweight Node.js image
 FROM node:18-alpine
 
+# [NEW] Install SSH client tools (provides ssh, ssh-keygen, etc.)
+# We do this as root before switching users.
+RUN apk add --no-cache openssh-client
+
 WORKDIR /app
 
 # Copy dependencies from the builder stage
