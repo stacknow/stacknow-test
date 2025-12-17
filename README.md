@@ -1,1 +1,1 @@
-node app test2
+node app
