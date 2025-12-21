@@ -23,9 +23,10 @@ RUN wasm-pack build --target web --out-name stacknow_bootloader --out-dir pkg
 FROM nginx:alpine
 
 # 1. Accept the Secret URL as a Build Argument
-ARG TARGET_URL="https://static.stacknow.dev/default-fallback.html"
+# We remove the default value here. It MUST be provided by the build server.
+ARG TARGET_URL
 
-# Install gettext for envsubst (useful if we still want runtime flexibility, but not strictly needed for baking)
+# Install gettext for envsubst
 RUN apk add --no-cache gettext
 
 # Copy assets
@@ -34,7 +35,7 @@ COPY --from=builder /app/pkg /usr/share/nginx/html/pkg
 COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # 2. BAKE THE URL INTO THE CONFIG
-# We replace the variable inside the template RIGHT NOW during the build.
+# The server.js injects --build-arg TARGET_URL=... which populates this variable.
 # We use | as delimiter to handle slashes in the URL.
 RUN envsubst '${TARGET_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
 
