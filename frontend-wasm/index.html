@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thrive Harmony</title>
+    
+    <!-- 1. PRELOAD FONTS (Crucial to stop the "Font Flash/Buggy" look) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+    <!-- 2. MATCH THE TARGET THEME EXACTLY -->
+    <style>
+        /* Deep Thrive Green Background - Matches your target site */
+        body { 
+            background-color: #0B221E; 
+            margin: 0; 
+            height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Manrope', sans-serif;
+            overflow: hidden;
+        }
+
+        /* The Container */
+        .loader-container {
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        /* Luxury Logo Loader */
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(212, 163, 115, 0.2); /* Thrive Gold faint */
+            border-top: 1px solid #D4A373; /* Thrive Gold bright */
+            border-radius: 50%;
+            margin: 0 auto 24px auto;
+            animation: spin 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        /* Elegant Text Pulse */
+        .loading-text {
+            color: #D4A373; /* Thrive Gold */
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        /* Subtle "Medical" Cross Pulse in background */
+        .bg-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(212, 163, 115, 0.03) 0%, transparent 70%);
+            z-index: -1;
+            animation: breathe 4s infinite ease-in-out;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } }
+
+    </style>
+</head>
+<body>
+    
+    <div class="bg-pulse"></div>
+
+    <div class="loader-container" id="loader">
+        <div class="logo-circle"></div>
+        <div class="loading-text">Initializing Harmony</div>
+    </div>
+
+    <script type="module">
+        import init, { load_website } from './stacknow_bootloader.js';
+
+        async function start() {
+            try {
+                await init();
+                
+                // Trigger the swap
+                await load_website();
+
+            } catch (err) {
+                console.error("Error:", err);
+                document.getElementById('loader').innerHTML = "<p style='color:#D4A373; font-family:sans-serif;'>Secure Connection Failed</p>";
+            }
+        }
+        
+        // Small delay to let the animation play (prevents a jarring instant-flash for fast connections)
+        setTimeout(start, 500);
+    </script>
+</body>
+</html>

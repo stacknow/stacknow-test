@@ -1,0 +1,27 @@
+server {
+    listen 80;
+    server_name localhost;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Serve static files (WASM, JS, HTML)
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # The Secret Tunnel
+    location /api/proxy {
+        # This variable is replaced by Docker at startup
+        proxy_pass ${TARGET_URL};
+        
+        # Crucial for external HTTPS targets
+        proxy_ssl_server_name on;
+        proxy_ssl_verify off; # Optional: set to on if you have the CA certs and require strict verification
+        
+        # Hide headers from the client that might reveal the source
+        proxy_hide_header x-amz-id-2;
+        proxy_hide_header x-amz-request-id;
+        proxy_hide_header Server;
+    }
+}
