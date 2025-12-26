@@ -6,17 +6,34 @@ const app = express();
 // Use the PORT environment variable if available, otherwise default to 8080
 const PORT = process.env.PORT || 8080;
 
+// --- NEW MIDDLEWARE ---
+// Allow Express to parse JSON bodies in POST requests
+app.use(express.json());
+
 // --- NEW API ENDPOINT ---
-// Endpoint to test/view environment variables in the browser/client
-app.get('/env-test', (req, res) => {
-  console.log(`[${new Date().toISOString()}] /env-test endpoint was called`);
-  
-  // Return the environment variables as JSON
-  res.json({
-    message: "Environment Variables Debug Info",
-    timestamp: new Date().toISOString(),
-    variables: process.env
+// POST endpoint to accept a list of variable names and return their values
+app.post('/check-env', (req, res) => {
+  console.log(`[${new Date().toISOString()}] /check-env endpoint was called`);
+
+  // Extract the list of variables to look up from the request body
+  // Expected JSON format: { "variables": ["PORT", "NODE_ENV", "MY_SECRET"] }
+  const varsToLookUp = req.body.variables;
+
+  if (!varsToLookUp || !Array.isArray(varsToLookUp)) {
+    return res.status(400).json({ 
+      error: "Please provide an array of strings in the 'variables' field." 
+    });
+  }
+
+  // Create an object containing the requested values
+  const responseData = {};
+  varsToLookUp.forEach((key) => {
+    // Check if the key exists in process.env
+    responseData[key] = process.env[key] !== undefined ? process.env[key] : "NOT_SET";
   });
+
+  // Respond with the results
+  res.json(responseData);
 });
 
 // Define the main route
@@ -31,17 +48,4 @@ app.get('/', (req, res) => {
 // Start the server and listen for requests on the specified port
 app.listen(PORT, () => {
   console.log(`Server is running and listening on port ${PORT}`);
-
-  // --- PRINT ON LOAD ---
-  console.log("------------------------------------------------");
-  console.log("🚀 APPLICATION STARTED - ENVIRONMENT VARIABLES 🚀");
-  console.log("------------------------------------------------");
-  
-  // Print all environment variables to the console
-  // Note: In a real app, you might want to filter out sensitive keys (like passwords)
-  Object.keys(process.env).forEach(key => {
-    console.log(`${key}: ${process.env[key]}`);
-  });
-  
-  console.log("------------------------------------------------");
 });
