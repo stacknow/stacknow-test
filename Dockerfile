@@ -8,24 +8,28 @@ COPY . .
 # --- Stage 2: Final Production Stage ---
 FROM node:18-alpine
 
-# 1. Install SSH Server (NOT just client)
+# 1. Install SSH Server and Client
 RUN apk add --no-cache openssh-server openssh-client
 
-# 2. Generate SSH host keys (Required for sshd to start on Alpine)
+# 2. Generate SSH host keys (Required for Alpine sshd)
 RUN ssh-keygen -A
 
-# 3. Create the directory for the node user's authorized keys (Kubernetes mounts keys here)
+# 3. Create .ssh directory for the node user
 RUN mkdir -p /home/node/.ssh && chown node:node /home/node/.ssh
 
 WORKDIR /app
+
+# 4. Copy application files
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/server.js ./server.js
 
-# Expose app port AND SSH port
-EXPOSE 8080 22
+# 5. Copy the startup script and make it executable
+COPY start.sh ./start.sh
+RUN chmod +x ./start.sh
 
-# 4. Start SSH Daemon in the background, then start the Node app
-# Note: We run as root initially to start sshd, but the node process should ideally drop privileges if possible. 
-# For simplicity in this setup, we keep the entrypoint simple:
-CMD ["/bin/sh", "-c", "/usr/sbin/sshd -D -e & npm start"]
+# 6. Expose Port 8080 (Server 1), 8081 (Server 2), and 22 (SSH)
+EXPOSE 8080 8081 22
+
+# 7. Start the shell script
+CMD ["./start.sh"]
